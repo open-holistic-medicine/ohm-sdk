@@ -1,0 +1,50 @@
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Platform-agnostic build artifacts ---
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+
+# --- iOS (Xcode + CocoaPods) ---
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/.xcode.env.local
+
+# --- Android (Gradle) ---
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/local.properties
+android/.idea/
+android/*.iml
+android/keystores/debug.keystore.cer
+
+# --- Metro / React Native ---
+.metro-health-check*
+.bundle/
+coverage/
+
+# --- IDE ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo

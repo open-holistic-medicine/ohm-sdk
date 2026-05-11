@@ -1,0 +1,46 @@
+{
+  "name": "bare-clinical-station-rn",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Bare React Native (no Expo) port of clinical-station-rn. Exercises every @ohm_studio/sdk-react-native feature — sync extract, streaming, async jobs, offline queue, API catalog, audit search, errors playground, summarize, PHI restore, idempotency, upload progress, abort. Mirrors the Expo demo line-for-line; only the native bridges differ.",
+  "scripts": {
+    "start": "react-native start",
+    "ios": "react-native run-ios",
+    "android": "react-native run-android",
+    "pods": "cd ios && pod install && cd ..",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ohm_studio/sdk-react-native": "^0.10.0",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-native-clipboard/clipboard": "^1.14.1",
+    "@react-native-community/netinfo": "^11.4.1",
+    "@react-navigation/bottom-tabs": "^7.2.0",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native-stack": "^7.2.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-audio-recorder-player": "^3.6.6",
+    "react-native-haptic-feedback": "^2.3.3",
+    "react-native-safe-area-context": "^5.6.0",
+    "react-native-screens": "^4.16.0",
+    "react-native-vector-icons": "^10.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@babel/preset-env": "^7.25.0",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "16.0.0",
+    "@react-native-community/cli-platform-android": "16.0.0",
+    "@react-native-community/cli-platform-ios": "16.0.0",
+    "@react-native/babel-preset": "0.81.5",
+    "@react-native/metro-config": "0.81.5",
+    "@types/node": "^20.0.0",
+    "@types/react": "~19.1.10",
+    "@types/react-native-vector-icons": "^6.4.18",
+    "typescript": "~5.9.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

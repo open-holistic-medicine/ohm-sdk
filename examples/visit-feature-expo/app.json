@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "OHM Visit",
+    "slug": "ohm-visit-demo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ohm.visit.demo",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Record patient visits to extract structured clinical notes."
+      }
+    },
+    "android": {
+      "package": "com.ohm.visit.demo",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "hospital-integration-probe",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Hospital integration kit — Studio schemas + sanity probe. Pair with examples/clinical-station-rn for the React Native UI.",
+  "type": "module",
+  "scripts": {
+    "probe": "tsx probe.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ohm_studio/sdk": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "id": "nurse-shift-handover",
+  "version": 1,
+  "label": "Inpatient — Nurse shift handover",
+  "description": "Voice-to-structured for a complete nurse shift summary — SOAP assessment, shift timeline, ISBARR handover. Designed for ward-level handover state machines.",
+  "specialty": "general",
+
+  "systemPrompt": "You are documenting a complete nurse shift summary for an admitted patient. The shift is one of Morning / Evening / Night. The speaker is the outgoing nurse, narrating everything that happened during their shift so the next nurse can take over safely.\n\nThe transcript is English (translated upstream from any of Tamil / Hindi / Telugu / Malayalam / English / code-mix). Some Indic tokens may slip through — interpret from clinical meaning.\n\nReturn three coordinated structures:\n\n1. soap — the nurse's clinical assessment for THIS shift:\n   • subjective — what the patient reported (symptoms, complaints, mood, sleep, appetite). Bullet list.\n   • objective — what the nurse observed or measured (vitals trend, exam findings, intake/output, drain output, wound status). Bullet list.\n   • goal — the goal/target for the next shift (e.g., \"keep pain ≤ 3/10\", \"mobilise 2× this evening\", \"maintain SpO₂ ≥ 95\"). Single short line.\n\n2. timeline — chronologically-ordered shift events. Each entry has:\n   • time — HH:MM (24-hour) when the event happened.\n   • type — \"progress\" for clinical/care events (vitals taken, medication given, wound dressed, ambulation, intake, output) OR \"education\" for patient/family teaching (warning signs explained, exercises taught, discharge instructions).\n   • text — one-sentence description of the event. Include the dose / route for medications (e.g., \"Inj. Pantoprazole 40mg IV given\").\n\n3. isbarr — the structured handover for the incoming nurse:\n   • situation — one-line current clinical state (\"Day 2 post-CABG, stable, weaning oxygen\").\n   • background — admission context, key history, primary problem (\"Admitted 18-Feb with chest pain → CABG done 20-Feb. T2DM, HTN, ex-smoker\").\n   • assessment — current overall clinical interpretation (\"Recovering well, no fresh issues, pain under control\").\n   • recommendation — what the next shift should do or watch for (\"Continue current orders, dressing change at 8 PM, escalate if chest tube output > 100ml/h\").\n   • reassessment — when/how to reassess (\"Vitals q4h, pain score q4h, neuro check at 10 PM\").\n\nFORMATTING\n• subjective + objective fields are bullet lists, not paragraphs. One clinical fact per bullet. Keep negatives the nurse explicitly mentioned (\"No bowel motion since morning\").\n• ISBARR fields are short paragraphs (1–3 sentences each), readable in 5 seconds. They're handover bullets, not chart prose.\n• timeline events stay in time order. Drop entries that don't have a clear time.\n\nDO NOT EMIT\n• Default-normal values for vitals or events the nurse didn't mention.\n• Patient name / IP number in any field — the mobile app shows them in the header.\n• Inferred clinical decisions the nurse didn't explicitly state.",
+
+  "sections": [
+    {
+      "key": "assessment",
+      "title": "SOAP",
+      "description": "Subjective + Objective + Goal for this shift.",
+      "fields": [
+        {
+          "key": "soapSubjective",
+          "type": "rich-text",
+          "label": "Subjective (S)",
+          "helpText": "Patient-reported during this shift: symptoms, complaints, mood, sleep, appetite. Bullet list. Keep negatives the patient mentioned."
+        },
+        {
+          "key": "soapObjective",
+          "type": "rich-text",
+          "label": "Objective (O)",
+          "helpText": "Nurse-observed during this shift: vital trends, exam findings, intake/output, drain output, wound status. Bullet list."
+        },
+        {
+          "key": "soapGoal",
+          "type": "text",
+          "label": "Goal for next shift",
+          "helpText": "Single short line — what next shift should aim for. e.g., \"Keep pain ≤ 3/10, mobilise 2× evening, maintain SpO₂ ≥ 95.\""
+        }
+      ]
+    },
+
+    {
+      "key": "timeline",
+      "title": "Shift timeline",
+      "description": "Chronologically-ordered events during this shift — every medication, every check, every patient/family interaction.",
+      "fields": [
+        {
+          "key": "timeline",
+          "type": "repeater",
+          "label": "Events",
+          "helpText": "One row per event. Drop the row if no time was stated.",
+          "item": {
+            "fields": [
+              {
+                "key": "time",
+                "type": "text",
+                "label": "Time",
+                "helpText": "HH:MM in 24-hour format. \"Eight thirty AM\" → 08:30. \"Two PM\" → 14:00."
+              },
+              {
+                "key": "type",
+                "type": "choice",
+                "label": "Type",
+                "options": [
+                  { "value": "progress", "label": "Progress" },
+                  { "value": "education", "label": "Education" }
+                ],
+                "helpText": "\"progress\" for clinical/care events (medication given, vitals taken, wound dressed, intake, output, ambulation). \"education\" for teaching the patient or family (warning signs, exercises, discharge instructions)."
+              },
+              {
+                "key": "text",
+                "type": "text",
+                "label": "Event",
+                "helpText": "One-sentence description. Include dose + route for medications. e.g., \"Inj. Pantoprazole 40 mg IV given\", \"Educated patient on warning signs of bleeding\"."
+              }
+            ]
+          }
+        }
+      ]
+    },
+
+    {
+      "key": "handover",
+      "title": "ISBARR handover",
+      "description": "Structured handover for the incoming nurse. Each field is 1–3 sentences, readable in 5 seconds.",
+      "fields": [
+        {
+          "key": "isbarrSituation",
+          "type": "textarea",
+          "label": "Situation (S)",
+          "helpText": "Current clinical state in one line. e.g., \"Day 2 post-CABG, stable, weaning oxygen.\""
+        },
+        {
+          "key": "isbarrBackground",
+          "type": "textarea",
+          "label": "Background (B)",
+          "helpText": "Admission context + key past history + primary problem. e.g., \"Admitted 18-Feb chest pain → CABG 20-Feb. T2DM, HTN, ex-smoker.\""
+        },
+        {
+          "key": "isbarrAssessment",
+          "type": "textarea",
+          "label": "Assessment (A)",
+          "helpText": "Current overall interpretation. e.g., \"Recovering well, no fresh issues, pain controlled.\""
+        },
+        {
+          "key": "isbarrRecommendation",
+          "type": "textarea",
+          "label": "Recommendation (R)",
+          "helpText": "Action items for the next shift + escalation triggers. e.g., \"Continue current orders, dressing change at 20:00, escalate if chest tube output > 100 ml/h.\""
+        },
+        {
+          "key": "isbarrReassessment",
+          "type": "textarea",
+          "label": "Reassessment (R)",
+          "helpText": "When and how to reassess. e.g., \"Vitals q4h, pain score q4h, neuro check at 22:00.\""
+        }
+      ]
+    }
+  ]
+}

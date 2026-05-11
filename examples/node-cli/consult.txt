@@ -1,0 +1,15 @@
+Patient is a 35-year-old male, name redacted, presenting with fever for 3 days
+and dry cough for 4 days. Denies chest pain, shortness of breath, vomiting,
+or diarrhoea. No known drug allergies. No travel history.
+
+On examination — blood pressure 130 over 85, heart rate 92, respiratory rate
+18, temperature 38.6 Celsius, oxygen saturation 97%. Throat appears
+erythematous. Chest is clear bilaterally. Abdomen soft, non-tender.
+
+Working impression: viral upper respiratory tract infection with low-grade
+fever. No red flags.
+
+Plan: Paracetamol 650mg three times a day for 5 days for fever. Lozenges as
+needed for sore throat. Encourage oral fluids. Patient advised to follow up
+in 3 days if no improvement, or sooner if breathlessness, persistent high
+fever, or new chest pain.

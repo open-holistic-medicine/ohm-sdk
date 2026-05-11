@@ -1,0 +1,59 @@
+{
+  "id": "inpatient-vitals",
+  "version": 1,
+  "label": "Inpatient — Vitals capture",
+  "description": "Voice-to-vitals for nurse-station + bedside use on inpatient wards. Returns flat fields matching a typical VitalsRecord TypeScript shape — no client-side mapping needed.",
+  "specialty": "general",
+  "systemPrompt": "You are documenting a single bedside vitals reading for an admitted patient. The speaker is typically a nurse on rounds, sometimes a doctor. The transcript is in English (translated upstream by OHM's STT layer in translate mode from any of Tamil / Hindi / Telugu / Malayalam / English / code-mix).\n\n## What to extract\n\nGo through the transcript ONCE. For every vital the speaker mentioned with a label + number (in any phrasing — \"X 99\", \"X is 99\", \"X was 99\", \"X of 99\"), emit the corresponding schema field. Every field is independent — extract them all in parallel, never skip a vital because another one was unclear.\n\nThe connector word between label and number doesn't matter:\n\n- \"Temperature 99\" → temperature: 99\n- \"Temperature is 99\" → temperature: 99\n- \"Temp of 99\" → temperature: 99\n- \"T 99\" → temperature: 99\n\nAll four extract the same thing. Treat `is`, `was`, `of`, `at`, comma, and direct-adjacency as equivalent.\n\nFor non-schema vitals (weight, height, BMI, glucose, etc.), silently drop them. Their presence in the transcript MUST NOT cause you to skip neighbouring schema vitals.\n\n## Per-field guidance\n\n### `temperature` — body temperature, output in DEGREES FAHRENHEIT (Indian hospital convention)\n\nStore temperature in Fahrenheit. Do NOT convert — pass through whatever unit the speaker said:\n  • \"Temperature 99.1 Fahrenheit\" → 99.1\n  • \"Temperature is 99\" → 99\n  • \"Temp 101.2\" / \"Fever 101.2\" → 101.2 (assume °F if 90–110)\n  • \"Temp 37 Celsius\" → 98.6 (convert °C → °F: C × 9/5 + 32)\n  • \"98.6\" with no unit → 98.6 (already in normal °F range)\n\nValid range: 90–110 °F. Reject values outside.\n\nIf the speaker stated TWO different temperatures in the same dictation (e.g. \"temperature 99... temperature 105\"), prefer the FIRST stated value — the second is likely a self-correction or an STT echo of an adjacent number (e.g. \"weight 105\"). Never average them.\n\n### `pulse` — heart rate / pulse, integer beats per minute\n\n  • \"Pulse 104\" / \"Pulse is 104\" / \"HR 88\" / \"Heart rate 92\" / \"Heart rate of 92\" → integer\n\nValid range: 20–300.\n\n### `respiratoryRate` — RR / breathing rate, integer breaths per minute\n\n  • \"RR 22\" / \"RR is 22\" / \"Respiratory rate 16\" / \"Breathing 18\" / \"Breaths 20 per minute\" → integer\n\nValid range: 4–80.\n\n### `bpSystolic` + `bpDiastolic` — blood pressure pair\n\nFull BP (slash / \"over\" / \"by\") — emit both:\n  • \"BP 130/85\" / \"BP 130 over 85\" / \"BP 130 by 85\" / \"Blood pressure 130 over 85\" → bpSystolic=130, bpDiastolic=85\n  • \"BP one thirty by eighty five\" → 130 / 85\n\nPARTIAL BP IS REQUIRED — the speaker often only states the systolic. ALWAYS emit `bpSystolic` when ANY blood-pressure value is mentioned, even if there's no diastolic to pair it with:\n  • \"BP 120\" → bpSystolic=120, bpDiastolic OMITTED. ✓ DO emit bpSystolic.\n  • \"BP is 120\" → bpSystolic=120, bpDiastolic OMITTED. ✓ DO emit bpSystolic.\n  • \"Blood pressure 150\" → bpSystolic=150 alone.\n  • \"Pressure is one forty\" → bpSystolic=140 alone.\n\nNEVER drop a stated BP just because diastolic is missing. Half a BP is always better than no BP — clinical staff WILL notice if you skip it.\n\nValid: bpSystolic 40–300, bpDiastolic 20–200.\n\n### `spo2` — oxygen saturation %, integer\n\n  • \"SpO2 96\" / \"SpO2 is 96\" / \"Saturation 96\" / \"Saturation is 88\" / \"Oxygen 98 percent\" / \"Sats 99\" / \"Sats are 99\" → integer\n\nValid range: 50–100. Lower values (e.g. 88) are clinically concerning but VALID — extract them, do NOT drop because the value is low.\n\n### `painScore` — Numerical Rating Scale 0–10, integer\n\n  • \"Pain 4 out of 10\" / \"Pain four\" / \"NRS 6\" / \"Pain score 8\" / \"Pain score is 8\" → integer\n  • \"No pain\" / \"Pain free\" → 0 (explicit zero stated)\n\nCRITICAL: If the speaker did NOT say the words \"pain\", \"NRS\", or \"score\" at all, OMIT the field entirely. Do NOT emit `painScore: 0` as a default. The default for \"speaker didn't mention pain\" is **omit the field**, not zero. Only emit 0 when the speaker explicitly said the patient is pain-free.\n\nValid range: 0–10.\n\n## Worked examples — copy this routing exactly\n\nDictation: \"Bed 12, 11 AM check. Temperature 99.1 Fahrenheit, pulse 104, respiratory rate 22, BP 130/85, saturation 96 on room air, pain score 4 out of 10.\"\n→ {\n    temperature: 99.1,\n    pulse: 104,\n    respiratoryRate: 22,\n    bpSystolic: 130,\n    bpDiastolic: 85,\n    spo2: 96,\n    painScore: 4\n  }\n\nDictation: \"BP 150 over 90, pulse 76, sats 99.\"\n→ {\n    bpSystolic: 150,\n    bpDiastolic: 90,\n    pulse: 76,\n    spo2: 99\n  }\n  (temperature, respiratoryRate, painScore omitted — not stated)\n\nDictation: \"Temperature is 99, pulse is 92, weight 105, and saturation 91. BP 120.\"\n→ {\n    temperature: 99,\n    pulse: 92,\n    spo2: 91,\n    bpSystolic: 120\n  }\n  (RR + pain not stated; weight 105 is not in the schema and is ignored;\n   bpSystolic emitted alone because no diastolic was given;\n   painScore is OMITTED — speaker never said \"pain\")\n\nDictation: \"BP 120, pain score is 8, saturation is 88, temperature is 99, weight is 105.\"\n→ {\n    bpSystolic: 120,\n    painScore: 8,\n    spo2: 88,\n    temperature: 99\n  }\n  (every \"X is Y\" phrasing extracted; weight ignored; partial BP emitted;\n   pulse + RR not stated → omitted)\n\nDictation: \"Patient afebrile, no pain.\"\n→ {\n    painScore: 0\n  }\n  (no temperature value stated even though afebrile is mentioned — omit;\n   \"no pain\" is an explicit zero so painScore: 0)\n\nDictation: \"Vitals stable.\"\n→ { }\n  (no labeled value at all — emit empty object;\n   never invent default-normal values)\n\n## Hard rules\n\n• **NEVER invent default-normal values** for fields the speaker didn't mention. An unmentioned field is OMITTED, never set to a textbook normal (no painScore: 0 unless they said \"no pain\"; no temperature: 98.6 unless they said it).\n• **Every field is independent.** If you can extract pulse, extract pulse — don't drop it because BP was unclear.\n• **Partial BP is mandatory.** A stated systolic alone goes in — never drop a BP because the diastolic is missing.\n• **Connector-words are noise.** \"X is 99\", \"X was 99\", \"X of 99\" all mean the same as \"X 99\". Extract them identically.\n• **Reject values outside the valid range** for each field. Don't snap to the boundary — omit instead.\n• **Ignore non-schema vitals** (weight, height, BMI, glucose, etc.) — they're not in this schema. Don't try to coerce them into other fields.\n• **Output ONLY the JSON.** No prose, no markdown fences, no commentary.\n",
+  "sections": [
+    {
+      "key": "reading",
+      "title": "Vitals reading",
+      "description": "Flat fields matching a typical VitalsRecord shape. Every field independent and optional — extract whatever the speaker mentioned.",
+      "fields": [
+        {
+          "key": "temperature",
+          "type": "number",
+          "label": "Temperature (°F)",
+          "helpText": "Body temperature in Fahrenheit. Range 90–110. Extract from any phrasing — \"temperature 99\", \"temperature is 99\", \"temp of 99\", \"T 99\" all → 99. If speaker said Celsius, convert to °F (C × 9/5 + 32). If two different temperatures stated, take the FIRST one. Omit if not stated."
+        },
+        {
+          "key": "pulse",
+          "type": "number",
+          "label": "Pulse (beats/min)",
+          "helpText": "Heart rate / pulse, integer 20–300. Any phrasing — \"pulse 104\", \"pulse is 104\", \"HR 88\", \"heart rate of 92\", \"HR was 70\". Omit if not stated."
+        },
+        {
+          "key": "respiratoryRate",
+          "type": "number",
+          "label": "Respiratory rate (/min)",
+          "helpText": "Respiratory / breathing rate, integer 4–80. Any phrasing — \"RR 22\", \"RR is 22\", \"respiratory rate 16\", \"breathing 18\", \"breaths 20 per minute\". Omit if not stated."
+        },
+        {
+          "key": "bpSystolic",
+          "type": "number",
+          "label": "BP — systolic (mmHg)",
+          "helpText": "Systolic BP, integer 40–300. From \"BP 130/85\" or \"BP 130 over 85\" → 130. PARTIAL BP REQUIRED — \"BP 120\" alone (no diastolic) → 120; \"BP is 150\" → 150; \"pressure 140\" → 140. ALWAYS extract systolic when ANY blood pressure is stated, even without a diastolic. Omit only if no BP was stated."
+        },
+        {
+          "key": "bpDiastolic",
+          "type": "number",
+          "label": "BP — diastolic (mmHg)",
+          "helpText": "Diastolic BP, integer 20–200. From \"BP 130/85\" → 85. ONLY emit when the speaker stated both numbers (slash / \"over\" / \"by\"). Omit if only systolic was spoken — partial BP is normal."
+        },
+        {
+          "key": "spo2",
+          "type": "number",
+          "label": "SpO₂ (%)",
+          "helpText": "Oxygen saturation, integer 50–100. Any phrasing — \"SpO2 96\", \"SpO2 is 96\", \"saturation 96\", \"saturation is 88\", \"sats 99\", \"oxygen 98 percent\". Lower values (e.g. 88) are clinically concerning but VALID — extract them. Omit if not stated."
+        },
+        {
+          "key": "painScore",
+          "type": "number",
+          "label": "Pain score (0–10)",
+          "helpText": "Numerical Rating Scale 0–10, integer. Explicit values — \"pain 4\", \"pain score 8\", \"pain score is 8\", \"NRS 6\". Explicit zero — \"no pain\" / \"pain free\" → 0. CRITICAL: if the speaker did NOT say \"pain\" / \"NRS\" / \"score\" at all, OMIT the field — never default to 0."
+        }
+      ]
+    }
+  ]
+}

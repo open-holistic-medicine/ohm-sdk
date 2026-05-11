@@ -1,0 +1,16 @@
+{
+  "name": "ohm-example-react-native-bare",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "ios": "react-native run-ios",
+    "android": "react-native run-android",
+    "start": "react-native start"
+  },
+  "dependencies": {
+    "@ohm_studio/sdk-react-native": "^0.10.0",
+    "react": "19.1.0",
+    "react-native": "0.76.0",
+    "react-native-audio-recorder-player": "^4.1.4"
+  }
+}

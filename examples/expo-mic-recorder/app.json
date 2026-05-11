@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "OHM RN demo",
+    "slug": "ohm-rn-demo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ohm.rn.demo",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Record consultations to extract structured clinical notes."
+      }
+    },
+    "android": {
+      "package": "com.ohm.rn.demo",
+      "permissions": ["android.permission.RECORD_AUDIO"]
+    },
+    "web": { "bundler": "metro" }
+  }
+}

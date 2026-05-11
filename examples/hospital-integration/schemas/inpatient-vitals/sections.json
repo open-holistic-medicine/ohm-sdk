@@ -1,0 +1,51 @@
+[
+  {
+    "key": "reading",
+    "title": "Vitals reading",
+    "description": "Flat fields matching a typical VitalsRecord shape. Every field independent and optional — extract whatever the speaker mentioned.",
+    "fields": [
+      {
+        "key": "temperature",
+        "type": "number",
+        "label": "Temperature (°F)",
+        "helpText": "Body temperature in Fahrenheit. Range 90–110. Extract from any phrasing — \"temperature 99\", \"temperature is 99\", \"temp of 99\", \"T 99\" all → 99. If speaker said Celsius, convert to °F (C × 9/5 + 32). If two different temperatures stated, take the FIRST one. Omit if not stated."
+      },
+      {
+        "key": "pulse",
+        "type": "number",
+        "label": "Pulse (beats/min)",
+        "helpText": "Heart rate / pulse, integer 20–300. Any phrasing — \"pulse 104\", \"pulse is 104\", \"HR 88\", \"heart rate of 92\", \"HR was 70\". Omit if not stated."
+      },
+      {
+        "key": "respiratoryRate",
+        "type": "number",
+        "label": "Respiratory rate (/min)",
+        "helpText": "Respiratory / breathing rate, integer 4–80. Any phrasing — \"RR 22\", \"RR is 22\", \"respiratory rate 16\", \"breathing 18\", \"breaths 20 per minute\". Omit if not stated."
+      },
+      {
+        "key": "bpSystolic",
+        "type": "number",
+        "label": "BP — systolic (mmHg)",
+        "helpText": "Systolic BP, integer 40–300. From \"BP 130/85\" or \"BP 130 over 85\" → 130. PARTIAL BP REQUIRED — \"BP 120\" alone (no diastolic) → 120; \"BP is 150\" → 150; \"pressure 140\" → 140. ALWAYS extract systolic when ANY blood pressure is stated, even without a diastolic. Omit only if no BP was stated."
+      },
+      {
+        "key": "bpDiastolic",
+        "type": "number",
+        "label": "BP — diastolic (mmHg)",
+        "helpText": "Diastolic BP, integer 20–200. From \"BP 130/85\" → 85. ONLY emit when the speaker stated both numbers (slash / \"over\" / \"by\"). Omit if only systolic was spoken — partial BP is normal."
+      },
+      {
+        "key": "spo2",
+        "type": "number",
+        "label": "SpO₂ (%)",
+        "helpText": "Oxygen saturation, integer 50–100. Any phrasing — \"SpO2 96\", \"SpO2 is 96\", \"saturation 96\", \"saturation is 88\", \"sats 99\", \"oxygen 98 percent\". Lower values (e.g. 88) are clinically concerning but VALID — extract them. Omit if not stated."
+      },
+      {
+        "key": "painScore",
+        "type": "number",
+        "label": "Pain score (0–10)",
+        "helpText": "Numerical Rating Scale 0–10, integer. Explicit values — \"pain 4\", \"pain score 8\", \"pain score is 8\", \"NRS 6\". Explicit zero — \"no pain\" / \"pain free\" → 0. CRITICAL: if the speaker did NOT say \"pain\" / \"NRS\" / \"score\" at all, OMIT the field — never default to 0."
+      }
+    ]
+  }
+]

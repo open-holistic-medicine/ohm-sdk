@@ -1,0 +1,21 @@
+[
+  {
+    "key": "note",
+    "title": "Doctor note",
+    "description": "What the doctor observed today, plus what should happen next.",
+    "fields": [
+      {
+        "key": "content",
+        "type": "rich-text",
+        "label": "Note (observations / assessment)",
+        "helpText": "Bullet list of what the doctor observed, assessed, or discussed today. One fact per bullet. Use **bold** sub-headings (e.g. **Symptoms**, **Examination**, **Negatives**) when there are more than 6 bullets."
+      },
+      {
+        "key": "plan",
+        "type": "rich-text",
+        "label": "Plan",
+        "helpText": "Bullet list of next-step actions: medications to start / stop / adjust, investigations to order, follow-up timing, escalation triggers. Leave empty if the doctor gave only observations and no plan."
+      }
+    ]
+  }
+]

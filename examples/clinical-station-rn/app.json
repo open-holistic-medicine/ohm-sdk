@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Clinical Station",
+    "slug": "clinical-station-rn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "We use the microphone to record clinical voice notes that get transcribed and structured."
+      }
+    },
+    "android": {
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Clinical Station to access your microphone for voice notes."
+        }
+      ]
+    ]
+  }
+}

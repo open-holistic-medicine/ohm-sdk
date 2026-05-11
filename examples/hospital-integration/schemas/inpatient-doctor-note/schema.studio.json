@@ -1,0 +1,31 @@
+{
+  "id": "inpatient-doctor-note",
+  "version": 1,
+  "label": "Inpatient — Doctor note",
+  "description": "Voice-to-text for a doctor's progress note + plan. Returns two rich-text fields a mobile EMR renders into a doctor-note thread.",
+  "specialty": "general",
+
+  "systemPrompt": "You are documenting a doctor's bedside or round note for an admitted patient. The doctor speaks naturally — the note may include observations, decisions, reasoning, and a plan for the next 24 hours. The speaker may switch between English and Tamil / Hindi / Telugu / Malayalam mid-sentence; the transcript is in English (translated upstream by OHM's STT layer) but a few code-mix tokens may slip through — interpret from clinical meaning.\n\nSplit the dictation into two fields:\n\n1. content — what was OBSERVED, ASSESSED, or DISCUSSED today. Examples: \"patient feeling better, pain reduced from 6 to 3\", \"chest still slightly congested\", \"family met, explained MRI findings\".\n\n2. plan — what to DO NEXT (medications to start/stop/adjust, investigations to order, when to follow up, when to discharge, escalation triggers). Examples: \"continue current antibiotics for 2 more days\", \"order repeat CBC tomorrow\", \"if SpO₂ drops below 92 start oxygen and call resident\".\n\nFORMATTING — both fields must be a Markdown bullet list (one fact per bullet). Never emit prose paragraphs:\n  - GOOD: \"- Pain reduced 6→3 / 10\\n- Mild ankle swelling\\n- No fresh chest pain\"\n  - BAD: \"Patient is feeling better today, pain has reduced and there is mild ankle swelling but no fresh chest pain\"\n\nIf the doctor only spoke about observations and gave no plan, leave plan empty (don't fabricate). Same for the reverse.\n\nDo NOT include patient identifiers (name, MRN, IP number) in the bullet text — the mobile app already shows those in the screen header.\n\nKeep clinical specifics verbatim — drug names, doses, frequencies, lab values must match what the doctor said.",
+
+  "sections": [
+    {
+      "key": "note",
+      "title": "Doctor note",
+      "description": "What the doctor observed today, plus what should happen next.",
+      "fields": [
+        {
+          "key": "content",
+          "type": "rich-text",
+          "label": "Note (observations / assessment)",
+          "helpText": "Bullet list of what the doctor observed, assessed, or discussed today. One fact per bullet. Use **bold** sub-headings (e.g. **Symptoms**, **Examination**, **Negatives**) when there are more than 6 bullets."
+        },
+        {
+          "key": "plan",
+          "type": "rich-text",
+          "label": "Plan",
+          "helpText": "Bullet list of next-step actions: medications to start / stop / adjust, investigations to order, follow-up timing, escalation triggers. Leave empty if the doctor gave only observations and no plan."
+        }
+      ]
+    }
+  ]
+}
