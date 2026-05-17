@@ -2,6 +2,18 @@
 
 All notable changes to the example projects in this repo.
 
+## 2026-05-18 — SDK 0.11.1 (validation pass)
+
+Patch release that completes the v0.11.0 hardening:
+
+- **Type completeness**: `JobDetail` and the streaming `transcript` chunk now expose `chunked` / `chunkCount`. Previously these fields existed only on the sync `transcribe` / `extract` responses; now polling-based async jobs and SSE streaming see them too.
+- **Server**: every LLM-using Studio service (`insights`, `summarize`, `ai-assist`) gained a hard 120-240s LLM ceiling — matching `extract`. No more hangs on the playground, `/summarize`, or `/ai-assist` endpoints.
+- **Server**: `StudioExtractionJob` schema gained `chunked` + `chunkCount` columns so async-job consumers can surface chunk-boundary warnings.
+
+Migration: `npm install` in any example.
+
+---
+
 ## 2026-05-18 — SDK 0.11.0 bump
 
 Every example bumped to `@ohm_studio/sdk@^0.11.0` / `@ohm_studio/sdk-react-native@^0.11.0`. No code changes required — every new feature is backward-compatible.
